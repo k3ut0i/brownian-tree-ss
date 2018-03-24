@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <error.h>
+#include <errno.h>
 
 #define in_boundsp(n, min, max) n >= min && n < max
 #define min(a,b) a>b?b:a
@@ -30,13 +32,13 @@ static ul touch_tree(struct brownian_tree * t, ul x, ul y)
 }
 
 struct brownian_tree *
-bt_init(const ul max_x, const ul max_y, unsigned int seed)
+bt_init(const ul max_x, const ul max_y, unsigned int rseed)
 {
   struct brownian_tree * t = malloc(sizeof *t);
   t->x = max_x;
   t->y = max_y;
   t->buffer = malloc(max_x * max_y * (sizeof (struct node)));
-  t->seed = seed;
+  t->rseed = rseed;
 
 #ifdef STATS
   t->out_of_bounds    = 0;
@@ -57,7 +59,7 @@ bt_init(const ul max_x, const ul max_y, unsigned int seed)
       n->from_y         = 0;
 #endif // STATS
     }
-  srandom(t->seed);
+  srandom(t->rseed);
   return t;
 }
 
@@ -69,9 +71,9 @@ void bt_destroy(struct brownian_tree * t){
 
 bool bt_new_particle(struct brownian_tree * t, ul x, ul y)
 {
-  ul new_x = x;
-  ul new_y = y;
-  unsigned int rstep;
+  long new_x = x;
+  long new_y = y;
+  int rstep;
   ul new_depth;
   unsigned long long nsteps = 0;
   while (in_boundsp(new_x, 0, t->x) && in_boundsp(new_y, 0, t->y)) {
@@ -132,4 +134,25 @@ void bt_new_seed(struct brownian_tree * t, const ul x, const ul y)
   struct node * seed_node = t->buffer + x * t->y + y;
   seed_node->type = SEED;
   seed_node->depth = 0;
+}
+
+void bt_dump_to_pbm_file(struct brownian_tree * t, const char * filename)
+{
+  assert(t);
+  FILE *fp = fopen(filename, "w");
+  if(!fp) error(-1, errno, "In %s", __func__);
+  
+  /* Print Image header. */
+  fprintf(fp, "P1\n");
+  fprintf(fp, "%ld %ld\n", t->y, t->x);
+  
+  struct node * cursor = t->buffer;
+  for(ul i = 0; i< t->x; i++){
+    for(ul j = 0; j < t->y; j++){
+      cursor = t->buffer + t->y * i + j;
+      fprintf(fp, "%d ", cursor->type == EMPTY ? 0 : 1);
+    }
+    fputc('\n', fp);
+  }
+  fclose(fp);
 }

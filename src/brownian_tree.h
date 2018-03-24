@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef unsigned long ul;
+typedef long ul;
 
 enum node_type{
   EMPTY,
@@ -26,7 +26,7 @@ struct node{
 struct brownian_tree{
   ul x, y;              /* Dimensions for the tree. */
   struct node * buffer; /* Buffer for node values. */
-  unsigned int seed;
+  unsigned int rseed;
   char * state;         /* State of psuedo-random generator for reproducible generation. */
 #ifdef STATS
   unsigned long long out_of_bounds;
@@ -36,9 +36,9 @@ struct brownian_tree{
 };
 
 
-struct brownian_tree * bt_init(const ul max_x, const ul max_y, unsigned int seed);
+struct brownian_tree * bt_init(const ul max_x, const ul max_y, unsigned int rseed);
 void bt_new_seed(struct brownian_tree * t, const ul x, const ul y);
 bool bt_new_particle(struct brownian_tree * t, ul x, ul y);
 void bt_destroy(struct brownian_tree * t);
-
+void bt_dump_to_pbm_file(struct brownian_tree * t, const char * filename);
 #endif
