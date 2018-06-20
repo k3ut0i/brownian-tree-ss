@@ -5,3 +5,5 @@
 *.o
 *.pbm
 /test-generate-simple-bt
+*.d
+gmon.out

@@ -1,10 +1,21 @@
 
 CC = gcc
-CFLAGS = -Wall -Wextra -ggdb -I./src/
+CFLAGS = -Wall -Wextra -I./src/
+
+ifdef DEBUG
+CFLAGS += -ggdb
+endif
+
+ifdef PROF
+CFLAGS += -pg
+endif
+
+ifdef STATS
+export STATS = 1
+endif
 
 .PHONY: clean top all-tests
 
-BUILD_DIR 	= _build
 SRC_DIR 	= src
 TEST_DIR 	= t
 VPATH 		= $(SRC_DIR):$(TEST_DIR):$(BUILD_DIR)
@@ -19,7 +30,7 @@ top: $(OBJS)
 
 all-tests: test-generate-simple-bt
 
-$(BUILD_DIR)/%.o : $(SRC_DIR)/%.c
+%.o : %.c
 	$(CC) $(CFLAGS) -MMD -c $< -o $@
 
 clean:
