@@ -7,3 +7,4 @@
 /test-generate-simple-bt
 *.d
 gmon.out
+bt-scm-shell

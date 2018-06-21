@@ -30,7 +30,7 @@ struct brownian_tree{
   struct node * buffer; /* Buffer for node values. */
   unsigned int rseed;
   char * state;         /* State of psuedo-random generator for reproducible generation. */
-
+  unsigned long num_particles;
   unsigned long long out_of_bounds;
   unsigned long long total_steps;
   unsigned long long successful_steps;
@@ -43,6 +43,8 @@ void bt_new_seed_at(struct brownian_tree * t, const ul x, const ul y);
 bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y);
 bool bt_new_random_particle(struct brownian_tree * t);
 void bt_destroy(struct brownian_tree * t);
+
+bool on_tree_p(struct brownian_tree*, ul, ul);
 
 void bt_dump_to_pbm(struct brownian_tree * t, FILE * fp);
 void bt_dump_to_pbm_file(struct brownian_tree * t, const char * filename);

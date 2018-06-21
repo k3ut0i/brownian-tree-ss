@@ -13,12 +13,12 @@
 #define constrain(min, x, max) x < min ? min : (x > max ? max : x)
 #define min(a,b) a>b?b:a
 #ifdef DEBUG
-#define DBG(str, ...) do{fprintf(stdout, str, ...);}while(0)
+#define DBG(str, ...) do{fprintf(stdout, str, __VA_ARGS__);}while(0)
 #else
 #define DBG(str, ...)
 #endif
 
-static bool on_tree_p(struct brownian_tree * t, ul x, ul y)
+bool on_tree_p(struct brownian_tree * t, ul x, ul y)
 {
   struct node * n = t->buffer + x*t->y + y;
   if(n->type == EMPTY)
@@ -34,6 +34,7 @@ static ul touch_tree(struct brownian_tree * t, ul x, ul y)
   for(int i = -1; i<=1; i++)
     for(int j = -1; j<=1; j++)
       if(i || j) {
+	/* TODO: Skipping out of bounds co-ordinates, should be more logical. */
 	ul x_new = constrain(0, x+i, t->x);
 	ul y_new = constrain(0, y+j, t->y);
 	struct node* n = t->buffer + x_new*t->y + y_new;
@@ -59,6 +60,8 @@ bt_init(const ul max_x, const ul max_y, unsigned int rseed)
   t->y = max_y;
   t->buffer = malloc(max_x * max_y * (sizeof (struct node)));
   t->rseed = rseed;
+  t->num_particles = 0;
+  
   t->out_of_bounds    = 0;
   t->total_steps      = 0;
   t->successful_steps = 0;
@@ -87,6 +90,7 @@ void bt_destroy(struct brownian_tree * t){
 
 bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y)
 {
+  if(on_tree_p(t, x, y)) return false;
   long new_x = x;
   long new_y = y;
   int rstep;
@@ -134,7 +138,9 @@ bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y)
       new_node->steps = nsteps;
       new_node->from_x = x;
       new_node->from_y = y;
-      printf("New node at %ld, %ld from %ld, %ld\n", new_x, new_y, x, y);
+      t->num_particles++;
+      DBG("New node[%ld] at %ld, %ld from %ld, %ld\n",
+	  t->num_particles, new_x, new_y, x, y);
       /* Returning both connected node, depth is cumbersome.
 Including touch functionality here breaks abstraction. Do i need connection link?*/
       return true;
@@ -180,13 +186,5 @@ void bt_dump_to_pbm_file(struct brownian_tree * t, const char * filename)
   FILE *fp = fopen(filename, "w");
   if(!fp) error(-1, errno, "In %s", __func__);
   bt_dump_to_pbm(t, fp);
-  fclose(fp);
-}
-
-void bt_draw_sample(const char* filename)
-{
-  FILE *fp = fopen(filename, "w");
-  if(!fp) error(-1, errno, "In %s", __func__);
-  /* draw a simple image with static init seed. to verify functionality. */
   fclose(fp);
 }

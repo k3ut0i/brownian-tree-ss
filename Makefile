@@ -1,9 +1,10 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -I./src/
+CFLAGS += `pkg-config --cflags guile-2.2`
 
 ifdef DEBUG
-CFLAGS += -ggdb
+CFLAGS += -ggdb -DDEBUG
 endif
 
 ifdef PROF
@@ -11,7 +12,7 @@ CFLAGS += -pg
 endif
 
 ifdef STATS
-export STATS = 1
+CFLAGS += -DSTATS
 endif
 
 .PHONY: clean top all-tests
@@ -38,5 +39,7 @@ clean:
 
 test-generate-simple-bt: simple_tree.o brownian_tree.o
 	$(CC) $(CFLAGS) -o $@ $^
+bt-scm-shell: brownian_tree.o bt_scm_shell.o
+	$(CC) $(CFlAGS) -o $@ $^  `pkg-config --libs guile-2.2`
 
 -include $(DEPS)
