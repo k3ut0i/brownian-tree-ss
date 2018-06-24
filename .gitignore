@@ -8,3 +8,5 @@
 *.d
 gmon.out
 bt-scm-shell
+*.x
+*.so

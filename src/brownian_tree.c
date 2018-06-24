@@ -188,3 +188,21 @@ void bt_dump_to_pbm_file(struct brownian_tree * t, const char * filename)
   bt_dump_to_pbm(t, fp);
   fclose(fp);
 }
+
+void bt_dump_all_info(struct brownian_tree * t, FILE* fp)
+{
+  assert(t);
+  /* TODO: Dump all info about the tree to an output stream. */
+  struct node * cursor = t->buffer;
+  for(ul i = 0; i< t->x; i++){
+    for(ul j = 0; j < t->y; j++){
+      cursor = t->buffer + t->y * i + j;
+      fprintf(fp, "[%ld,%ld]\t%s\t%d\t%ld\t%lld\t[%ld,%ld]\n"
+	      , i, j,
+	      cursor->type == EMPTY ? "Empty" :
+	      (cursor->type == SEED ? "Seed" : "Particle"),
+	      cursor->attributes, cursor->depth, cursor->steps,
+	      cursor->from_x, cursor->from_y);
+    }
+  }
+}
