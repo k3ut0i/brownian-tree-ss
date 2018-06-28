@@ -8,7 +8,7 @@
 typedef long ul;
 
 enum node_type{
-  EMPTY,
+  EMPTY = 0,
   SEED,
   PARTICLE,
 };

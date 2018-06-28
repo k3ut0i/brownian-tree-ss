@@ -37,6 +37,9 @@ all-tests: test-generate-simple-bt
 %.o : %.c
 	$(CC) $(CFLAGS) $(DEFS) $(INCLUDES) -MMD -c $< -o $@
 
+libbrownian_tree.so: brownian_tree.o
+	$(CC) $(CFLAGS) $(LIBS) -shared -o $@ $^
+
 test-generate-simple-bt: simple_tree.o brownian_tree.o
 	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
 bt-scm-shell: brownian_tree.o bt_scm_shell.o
