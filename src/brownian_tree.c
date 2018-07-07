@@ -34,9 +34,10 @@ static ul touch_tree(struct brownian_tree * t, ul x, ul y)
   for(int i = -1; i<=1; i++)
     for(int j = -1; j<=1; j++)
       if(i || j) {
-	/* TODO: Skipping out of bounds co-ordinates, should be more logical. */
-	ul x_new = constrain(0, x+i, t->x);
-	ul y_new = constrain(0, y+j, t->y);
+	/* TODO: redoing out of bounds co-ordinates, 
+	   should be more logical and skip it entirely.*/
+	ul x_new = constrain(0, x+i, t->x-1);
+	ul y_new = constrain(0, y+j, t->y-1);
 	struct node* n = t->buffer + x_new*t->y + y_new;
 	switch (n->type) {
 	case SEED:
@@ -204,5 +205,47 @@ void bt_dump_all_info(struct brownian_tree * t, FILE* fp)
 	      cursor->attributes, cursor->depth, cursor->steps,
 	      cursor->from_x, cursor->from_y);
     }
+  }
+}
+
+ul bt_npart_from(struct brownian_tree* t, ul* xy_points, ul size)
+{
+  ul ret = 0;
+  ul x = 0, y = 0;
+  for(ul i = 0; i < size; i++){
+    x = *(xy_points++);
+    y = *(xy_points++);
+    if(on_tree_p(t, x, y)){
+      DBG("On tree: %l %l", x, y);
+    }else{
+      while(1){
+	if (bt_new_particle_at(t, x, y)) break;
+      }
+      ret++;
+    }
+  }
+  return ret; /* Number of particles that succeeded */
+}
+
+void bt_npart(struct brownian_tree* t, rp_gen f, ul n)
+{
+  ul x = 0, y = 0;
+  for(ul i = 0; i < n; ){
+    ul c = f(t->x, t->y); /* The function should encode two values in ul, TODO: long long? */
+    y = c % t->y;
+    x = c / t->y;
+    if(on_tree_p(t, x, y)){
+      DBG("On tree: %l %l", x, y);
+    }else{
+      while(1){
+	/* Determinism of this code, is questionable.
+	   Granted if num_partcles < width * height, the process end 
+	   with probabilistic certainty, but there should be an optimum
+	   level of density that should be warned when exceeded.
+	*/
+	if (bt_new_particle_at(t, x, y)) break;
+      }
+      i++; /* Increment for loop on successful particle. */
+    }    
   }
 }

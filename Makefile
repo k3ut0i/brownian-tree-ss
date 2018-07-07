@@ -2,8 +2,8 @@
 CC = gcc
 DEFS =
 CFLAGS = -Wall -Wextra -fPIC
-INCLUDES = -I./src/ `pkg-config --cflags guile-2.2`
-LIBS = `pkg-config --libs guile-2.2`
+INCLUDES = -I./src/ $(shell pkg-config --cflags guile-2.2)
+LIBS = $(shell pkg-config --libs guile-2.2) -lm
 
 ifdef DEBUG
 CFLAGS += -ggdb
@@ -40,19 +40,27 @@ all-tests: test-generate-simple-bt
 libbrownian_tree.so: brownian_tree.o
 	$(CC) $(CFLAGS) $(LIBS) -shared -o $@ $^
 
+center_origin_circle_seeded: center_origin_circle_seeded.o brownian_tree.o
+	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
+
 test-generate-simple-bt: simple_tree.o brownian_tree.o
 	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
+
 bt-scm-shell: brownian_tree.o bt_scm_shell.o
 	$(CC) $(CFlAGS) $(LIBS) -o $@ $^
 
 snarfcppopts = $(DEFS) $(INCLUDES) $(CFLAGS)
 .SUFFIXES: .x
-.c.x:
+%.x : %.c
 	guile-snarf -o $@ $< $(snarfcppopts)
-	mv $@ $(SRC_DIR)
-bt-guile-bindings.o : bt-guile-bindings.x
+
+
+bt-guile-bindings.o : src/bt-guile-bindings.x
 bt-guile-bindings.so: bt-guile-bindings.o brownian_tree.o
-	$(CC) $(CFLAGS) $(LIBS) -shared -o $@ $^ 
+	$(CC) $(CFLAGS) $(LIBS) -shared -o $@ $^
+
+test_all: test-generate-simple-bt
+	prove
 clean:
 	rm -f $(OBJS) $(DEPS) src/*.x *.so *.o test-generate-simple-bt bt-scm-shell
 

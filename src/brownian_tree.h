@@ -37,12 +37,20 @@ struct brownian_tree{
 
 };
 
+typedef ul (*rp_gen)(ul, ul); 
 
 struct brownian_tree * bt_init(const ul max_x, const ul max_y, unsigned int rseed);
+void bt_destroy(struct brownian_tree * t);
 void bt_new_seed_at(struct brownian_tree * t, const ul x, const ul y);
+
 bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y);
 bool bt_new_random_particle(struct brownian_tree * t);
-void bt_destroy(struct brownian_tree * t);
+
+/* TODO: Testing require for these functions. */
+ul bt_npart_from(struct brownian_tree* t, ul* xy, ul n);
+void bt_npart(struct brownian_tree* t, rp_gen f, ul n);
+
+
 
 bool on_tree_p(struct brownian_tree*, ul, ul);
 
