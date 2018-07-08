@@ -53,7 +53,7 @@ void bt_npart(struct brownian_tree* t, rp_gen f, ul n);
 
 
 bool on_tree_p(struct brownian_tree*, ul, ul);
-
+ul touch_tree(struct brownian_tree*, ul, ul);
 void bt_dump_to_pbm(struct brownian_tree * t, FILE * fp);
 void bt_dump_to_pbm_file(struct brownian_tree * t, const char * filename);
 

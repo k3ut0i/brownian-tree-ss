@@ -27,7 +27,7 @@ bool on_tree_p(struct brownian_tree * t, ul x, ul y)
     return true;
 }
 
-static ul touch_tree(struct brownian_tree * t, ul x, ul y)
+ul touch_tree(struct brownian_tree * t, ul x, ul y)
 {
   if(!(in_boundsp(x, 0, t->x) && in_boundsp(y, 0, t->y))) return 0;
   ul ret = 0;
@@ -161,6 +161,13 @@ void bt_new_seed_at(struct brownian_tree * t, const ul x, const ul y)
     err(-1, "Attempt to set seed, invalid bounds (%ld, %ld) (%ld, %ld).",
 	x, y, t->x, t->y);
   }
+}
+
+bool bt_new_random_particle(struct brownian_tree* t)
+{
+  unsigned long x = t->x * random()/RAND_MAX;
+  unsigned long y = t->y * random()/RAND_MAX;
+  return bt_new_particle_at(t, x, y);
 }
 
 void bt_dump_to_pbm(struct brownian_tree * t, FILE * fp)

@@ -11,7 +11,8 @@ DEFS   += -DDEBUG
 endif
 
 ifdef PROF
-CFLAGS += -pg
+CFLAGS += -pg -fprofile-arcs -ftest-coverage
+LIBS += -lgcov
 endif
 
 ifdef STATS
@@ -28,40 +29,42 @@ SRCS = $(wildcard $(SRC_DIR)/*.c) $(wildcard $(TEST_DIR)/*.c)
 OBJS = $(SRCS:.c=.o)
 DEPS = $(OBJS:.o=.d)
 
+sample-programs= center_seeded.bin	 		\
+		 center_origin_circle_seeded.bin	\
+		 isolated_points.bin			\
+		 bt_scm_shell.bin			\
+		 square_ends_seeded.bin
+
 
 
 top: $(OBJS)
 
-all-tests: test-generate-simple-bt
-
 %.o : %.c
 	$(CC) $(CFLAGS) $(DEFS) $(INCLUDES) -MMD -c $< -o $@
+
+%.bin : %.o brownian_tree.o
+	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
 
 libbrownian_tree.so: brownian_tree.o
 	$(CC) $(CFLAGS) $(LIBS) -shared -o $@ $^
 
-center_origin_circle_seeded: center_origin_circle_seeded.o brownian_tree.o
-	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
-
-test-generate-simple-bt: simple_tree.o brownian_tree.o
-	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
-
-bt-scm-shell: brownian_tree.o bt_scm_shell.o
-	$(CC) $(CFlAGS) $(LIBS) -o $@ $^
-
 snarfcppopts = $(DEFS) $(INCLUDES) $(CFLAGS)
-.SUFFIXES: .x
 %.x : %.c
 	guile-snarf -o $@ $< $(snarfcppopts)
-
 
 bt-guile-bindings.o : src/bt-guile-bindings.x
 bt-guile-bindings.so: bt-guile-bindings.o brownian_tree.o
 	$(CC) $(CFLAGS) $(LIBS) -shared -o $@ $^
 
-test_all: test-generate-simple-bt
-	prove
-clean:
-	rm -f $(OBJS) $(DEPS) src/*.x *.so *.o test-generate-simple-bt bt-scm-shell
+samples: $(sample-programs)
 
+generate-samples: samples t/generate-images.pl
+	perl t/generate-images.pl
+
+clean-coverage:
+	rm -f ./*/*.gcda ./*/*.gcno *.gcov gmon.out
+clean:
+	rm -f $(OBJS) $(DEPS) $(sample-programs) \
+	src/*.x *.so *.o 
+clean-all: clean clean-coverage
 -include $(DEPS)

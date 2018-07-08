@@ -17,11 +17,12 @@ int main(int argc, char *argv[])
   int str_size =
     strlen(file_prefix) + 1 + /* Underscore */
     strlen(argv[1]) + 1 + /* Underscore */
-    strlen(argv[2]) +
+    strlen(argv[2]) + 1 + /* Underscore */
+    strlen(argv[3]) +
     strlen(file_postfix) + 1; /* Null terminated */
   char * outfile = malloc(str_size);
-  snprintf(outfile, str_size, "%s_%s_%s%s",
-	   file_prefix, argv[1], argv[2], file_postfix);
+  snprintf(outfile, str_size, "%s_%s_%s_%s%s",
+	   file_prefix, argv[1], argv[2], argv[3], file_postfix);
   fprintf(stdout, "Brownian tree with seeded circle and points from inner"
 	  "concentric circle\n"
 	  "Size: %ldX %ld Num of Particles: %ld\n",
@@ -39,15 +40,19 @@ int main(int argc, char *argv[])
 	bt_new_seed_at(t, i, j);
     }
   for(unsigned long i = 0; i < npart; i++){
-    if(on_tree_p(t, radius, radius)){
-      fprintf(stdout, "Tree grew to the center, terminating at %ld particles\n",
+    if(touch_tree(t, radius, radius) != 0){
+      fprintf(stdout, "\nTree grew to the center, terminating at %ld particles\n",
 	      i);
+      goto cleanup;
     }else{
       while(!bt_new_particle_at(t, radius, radius)){
-	fprintf(stderr, "\rTrying particle %ld", i);
+	fprintf(stderr, "\rTrying particle %ld", i);	
       }
+      fflush(stderr);
     }
   }
+
+ cleanup:
   bt_dump_to_pbm_file(t, outfile);
   free(outfile);
   bt_destroy(t);
