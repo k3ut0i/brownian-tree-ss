@@ -23,9 +23,12 @@ endif
 
 SRC_DIR 	= src
 TEST_DIR 	= t
-VPATH 		= $(SRC_DIR):$(TEST_DIR):$(BUILD_DIR)
+EXAMPLE_DIR	= examples
+VPATH 		= $(SRC_DIR):$(TEST_DIR):$(EXAMPLE_DIR)
 
-SRCS = $(wildcard $(SRC_DIR)/*.c) $(wildcard $(TEST_DIR)/*.c)
+SRCS = $(wildcard $(SRC_DIR)/*.c) $(wildcard $(TEST_DIR)/*.c) \
+	$(wildcard $(EXAMPLE_DIR)/*.c)
+
 OBJS = $(SRCS:.c=.o)
 DEPS = $(OBJS:.o=.d)
 
@@ -35,7 +38,7 @@ sample-programs= center_seeded.bin	 		\
 		 bt_scm_shell.bin			\
 		 square_ends_seeded.bin
 
-
+example-programs = scripted_seeds.bin
 
 top: $(OBJS)
 
@@ -57,6 +60,7 @@ bt-guile-bindings.so: bt-guile-bindings.o brownian_tree.o
 	$(CC) $(CFLAGS) $(LIBS) -shared -o $@ $^
 
 samples: $(sample-programs)
+examples: $(example-programs)
 
 generate-samples: samples t/generate-images.pl
 	perl t/generate-images.pl

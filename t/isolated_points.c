@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
   for(unsigned long i = 0; i < npart; i++){
     while(!bt_new_random_particle(t)){
-      fprintf(stderr, "\rTrying particle %ld", i);
+      DBG("\rTrying particle %ld", i);
     }
   }
   bt_dump_to_pbm_file(t, outfile);

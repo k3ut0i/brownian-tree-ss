@@ -12,11 +12,6 @@
 #define in_boundsp(n, min, max) n >= min && n < max
 #define constrain(min, x, max) x < min ? min : (x > max ? max : x)
 #define min(a,b) a>b?b:a
-#ifdef DEBUG
-#define DBG(str, ...) do{fprintf(stdout, str, __VA_ARGS__);}while(0)
-#else
-#define DBG(str, ...)
-#endif
 
 bool on_tree_p(struct brownian_tree * t, ul x, ul y)
 {

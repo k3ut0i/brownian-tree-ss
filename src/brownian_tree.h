@@ -5,6 +5,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef DEBUG
+#define DBG(str, ...) do{fprintf(stdout, str, __VA_ARGS__);}while(0)
+#else
+#define DBG(str, ...)
+#endif
+
+
 typedef long ul;
 
 enum node_type{

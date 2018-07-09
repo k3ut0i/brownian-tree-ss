@@ -1,0 +1,6 @@
+* Notes on implementation details
+** Multi-threaded Generator 
+Using threads to speed up particle generation.
+** Sub graph recognition
+Large Brownian Trees produce fractal-ish images. What are the common reoccurring patterns ?
+I would like to analyze a series of generated images and find out how fractal a Brownian tree is?  

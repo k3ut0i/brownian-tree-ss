@@ -6,6 +6,9 @@ use Cwd qw(cwd);
 use constant ISOLATED_POINTS_EXE => "./isolated_points.bin";
 use constant COCS_EXE            => "center_origin_circle_seeded.bin";
 use constant TGSBT_EXE           => "center_seeded.bin";
+use constant SES_EXE             => "./square_ends_seeded.bin";
+use constant NUM_SAMPLES         => 10;
+use constant SEED_MAX            => 1000;
 use constant SIZE => 400;
 
 sub isolated_points{
@@ -16,8 +19,14 @@ sub isolated_points{
 }
 
 sub generate_ip{
-  isolated_points(SIZE, SIZE, 1, 5000, 4, "isolated.pbm");
+  my $seed = 0;
+  select()->flush();
+  foreach (1 .. NUM_SAMPLES) {
+    $seed = int (rand SEED_MAX);
+    isolated_points(SIZE, SIZE, $seed, 5000, 4, "isolated_${seed}.pbm");
+    print ".";
+  }
+  print "Isolated Images ", NUM_SAMPLES, "\n";
 }
 
-print cwd, "\n";
 generate_ip();
