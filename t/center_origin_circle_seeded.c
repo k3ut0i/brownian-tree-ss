@@ -5,15 +5,18 @@
 #include <stdlib.h>
 #include <err.h>
 #include <math.h>
+
 int main(int argc, char *argv[])
 {
   if(argc != 4)
     err(-1, "Usage: %s <square_side_length> <num_particles> <seed>", argv[0]);
+
   const unsigned long side_length = strtoul(argv[1], NULL, 0);
   const unsigned long npart       = strtoul(argv[2], NULL, 0);
   const unsigned int rseed        = strtoul(argv[3], NULL, 0);
   const char * file_prefix = "cocs";
   const char * file_postfix = ".pbm";
+
   int str_size =
     strlen(file_prefix) + 1 + /* Underscore */
     strlen(argv[1]) + 1 + /* Underscore */
