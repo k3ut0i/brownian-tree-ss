@@ -37,13 +37,16 @@ sample-programs= center_seeded.bin	 		\
 		 isolated_points.bin			\
 		 bt_scm_shell.bin			\
 		 square_ends_seeded.bin
-
+test-programs = dump_tests.test.bin
 example-programs = scripted_seeds.bin
 
 top: $(OBJS)
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(DEFS) $(INCLUDES) -MMD -c $< -o $@
+
+%.test.bin: %.o brownian_tree.o test_misc.o
+	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
 
 %.bin : %.o brownian_tree.o
 	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
@@ -64,11 +67,15 @@ examples: $(example-programs)
 
 generate-samples: samples t/generate-images.pl
 	perl t/generate-images.pl
-
+test:	dump_tests.test.bin
+	./dump_tests.test.bin -w 100 -h 100 -r 1 -o "dump_info" -n 1000 -t "center_seeded"
+clean-samples:
+	rm -f $(sample-programs)
+clean-examples:
+	rm -f $(example-programs)
 clean-coverage:
 	rm -f ./*/*.gcda ./*/*.gcno *.gcov gmon.out
 clean:
-	rm -f $(OBJS) $(DEPS) $(sample-programs) \
-	src/*.x *.so *.o 
-clean-all: clean clean-coverage
+	rm -f $(OBJS) $(DEPS) src/*.x *.so *.o 
+clean-all: clean clean-coverage clean-samples clean-examples
 -include $(DEPS)

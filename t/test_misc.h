@@ -7,16 +7,12 @@
 
 #define get_ulong(str) strtoul(str, NULL, 0)
 
-const struct option long_options[] =
-  {
-   {"width", required_argument, 0, 'w'},
-   {"height", required_argument, 0, 'h'},
-   {"rseed", required_argument, 0, 'r'},
-   {"outfile", required_argument, 0, 'o'},
-   {"npart", required_argument, 0, 'n'},
-   {"nseeds", required_argument, 0, 's'},
-   {0, 0, 0, 0}
-  };
+struct option_desc {
+  int val;
+  char* desc; 
+};
+extern const struct option long_options[];
+extern const struct option_desc long_options_desc[];
 
 /* Initial configuration for test programs. */
 struct test_config {
@@ -26,9 +22,20 @@ struct test_config {
     npart,              /* 1 << 3 */
     nseeds;             /* 1 << 4 */
   char* outfile;        /* 1 << 5 */
+  char* test_type;      /* 1 << 6 */
 } config;
 
+enum test_config_key
+  {
+   WIDTH  = 1 << 0,
+   HEIGHT = 1 << 1,
+   RSEED  = 1 << 2,
+   NPART  = 1 << 3,
+   NSEEDS = 1 << 4,
+   OUTFILE= 1 << 5,
+   TEST_TYPE = 1 << 6
+  }config_key;
 
 int populate_config(int argc, char* argv[]);
-int validate_config();
+void print_banner(const char* name);
 #endif /* _TEST_MISC_H */

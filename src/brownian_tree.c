@@ -197,17 +197,26 @@ void bt_dump_all_info(struct brownian_tree * t, FILE* fp)
   assert(t);
   /* TODO: Dump all info about the tree to an output stream. */
   struct node * cursor = t->buffer;
+  fprintf(fp, "%ld\t%ld\n", t->x, t->y);
   for(ul i = 0; i< t->x; i++){
     for(ul j = 0; j < t->y; j++){
       cursor = t->buffer + t->y * i + j;
-      fprintf(fp, "[%ld,%ld]\t%s\t%d\t%ld\t%lld\t[%ld,%ld]\n"
+      fprintf(fp, "[%ld,%ld]\t%d\t%d\t%ld\t%lld\t[%ld,%ld]\n"
 	      , i, j,
-	      cursor->type == EMPTY ? "Empty" :
-	      (cursor->type == SEED ? "Seed" : "Particle"),
+	      cursor->type,
 	      cursor->attributes, cursor->depth, cursor->steps,
 	      cursor->from_x, cursor->from_y);
     }
   }
+}
+
+void bt_dump_all_info_to_file(struct brownian_tree* t, const char* filename)
+{
+  assert(t);
+  FILE *fp = fopen(filename, "w");
+  if(!fp) error(-1, errno, "In %s", __func__);
+  bt_dump_all_info(t, fp);
+  fclose(fp);
 }
 
 ul bt_npart_from(struct brownian_tree* t, ul* xy_points, ul size)
@@ -218,7 +227,7 @@ ul bt_npart_from(struct brownian_tree* t, ul* xy_points, ul size)
     x = *(xy_points++);
     y = *(xy_points++);
     if(on_tree_p(t, x, y)){
-      DBG("On tree: %l %l", x, y);
+      DBG("On tree: %ld %ld", x, y);
     }else{
       while(1){
 	if (bt_new_particle_at(t, x, y)) break;
@@ -237,7 +246,7 @@ void bt_npart(struct brownian_tree* t, rp_gen f, ul n)
     y = c % t->y;
     x = c / t->y;
     if(on_tree_p(t, x, y)){
-      DBG("On tree: %l %l", x, y);
+      DBG("On tree: %ld %ld", x, y);
     }else{
       while(1){
 	/* Determinism of this code, is questionable.
