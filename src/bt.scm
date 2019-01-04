@@ -1,16 +1,25 @@
 (define-module (bt)
   #:use-module (system foreign)
+  #:use-module (system foreign-object)
   #:use-module (oop goops)
   #:use-module (srfi srfi-8)
-  #:export (<brownian-tree>))
-
+  #:export (<brownian-tree>
+	    new-particle-from!
+	    new-brownian-tree))
 
 (define-class <brownian-tree> ()
   (raw-pointer #:init-keyword #:raw-pointer
 	       #:getter raw-pointer)
   (size	#:accessor size)
   (random-seed #:accessor rseed)
-  (stats #:accessor stats)
+  (stats #:accessor stats
+	 #:allocation #:virtual
+	 #:slot-ref (lambda (o)
+		      (let* ((rp (slot-ref o 'raw-pointer))
+			     (pf (parse-c-struct rp bt-struct-type)))
+			(list->vector (list-tail pf 5))))
+	 #:slot-set! (lambda (o v)
+		       (error "Cant set debug stats in object")))
   (buffer #:accessor buffer))
 
 (define-method (initialize (tree <brownian-tree>) initargs)
@@ -22,15 +31,30 @@
 	(apply values parsed-fields)
       (set! (size tree) (cons x-size y-size))
       (set! (rseed tree) random-seed)
-      (set! (buffer tree) buffer-ptr)
-      (set! (stats tree) (vector num-part out-of-bound-count
-				 total-steps successful-steps)))))
+      (set! (buffer tree) buffer-ptr))))
 
 (define-method (write (tree <brownian-tree>) port)
   (format port "#<BROWNIAN-TREE: ~A ~A ~A>"
 	  (pointer-address (raw-pointer tree))
 	  (size tree)
 	  (stats tree)))
+
+(define (new-brownian-tree size rseed)
+  (make <brownian-tree> #:raw-pointer (%bt-init (car size)
+						(cdr size)
+						rseed)))
+
+(define (new-particle-from! tree point)
+  (let ((try-traversal (lambda ()
+			 (%new-particle-at (raw-pointer tree)
+					   (car point)
+					   (cdr point)))))
+    (let lp ((success (try-traversal)))
+      (cond 
+       ((= success 1) #t)
+       ((zero? (%touch-tree (raw-pointer tree)
+			    (car point) (cdr point))) (lp (try-traversal)))
+       (else #f))))) ;; in last case, initial point is touching the tree.
 
 (define bt-lib (dynamic-link "./libbrownian_tree.so"))
 
@@ -56,13 +80,22 @@
   (pointer->procedure int32
 		      (dynamic-func "bt_new_random_particle" bt-lib)
 		      '(*)))
-(define npart-from
+(define %npart-from
   (pointer->procedure uint64;
 		      (dynamic-func "bt_npart_from" bt-lib)
 		      (list '* '* uint64)))
 
 ;; TODO: npart
 
+(define %on-tree?
+  (pointer->procedure uint32
+		      (dynamic-func "on_tree_p" bt-lib)
+		      (list '* uint64 uint64)))
+
+(define %touch-tree
+  (pointer->procedure uint64
+		      (dynamic-func "touch_tree" bt-lib)
+		      (list '* uint64 uint64)))
 
 
 (define bt-struct-type (list uint64 ; x, width

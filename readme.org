@@ -1,2 +1,5 @@
 * Brownian Trees
 Various methods to generate Brownian trees.  
+- [ ] Threaded methods are non completed.
+- [ ] Non deterministic vs deterministic computations need profiling.
+[[file:docs/impl.org][implementation docs]] for more Todos.

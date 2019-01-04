@@ -260,3 +260,11 @@ void bt_npart(struct brownian_tree* t, rp_gen f, ul n)
     }    
   }
 }
+
+int bt_npart_threaded(struct brownian_tree* t, rp_gen f, ul n)
+{
+  int ret_num = 0;
+  /* TODO: Figure out a crystal clear way to compose parallel computed
+     Particles. */
+  return ret_num;
+}

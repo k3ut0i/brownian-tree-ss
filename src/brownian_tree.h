@@ -57,6 +57,8 @@ bool bt_new_random_particle(struct brownian_tree * t);
 ul bt_npart_from(struct brownian_tree* t, ul* xy, ul n);
 void bt_npart(struct brownian_tree* t, rp_gen f, ul n);
 
+/* TODO: Threaded functions. */
+int bt_npart_threaded(struct brownian_tree* t, rp_gen f, ul n);
 
 
 bool on_tree_p(struct brownian_tree*, ul, ul);
