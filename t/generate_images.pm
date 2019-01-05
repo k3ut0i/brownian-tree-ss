@@ -4,8 +4,8 @@ use warnings;
 use Cwd qw(cwd);
 
 use constant ISOLATED_POINTS_EXE => "./isolated_points.bin";
-use constant COCS_EXE            => "center_origin_circle_seeded.bin";
-use constant TGSBT_EXE           => "center_seeded.bin";
+use constant COCS_EXE            => "./center_origin_circle_seeded.bin";
+use constant TGSBT_EXE           => "./center_seeded.bin";
 use constant SES_EXE             => "./square_ends_seeded.bin";
 use constant NUM_SAMPLES         => 10;
 use constant SEED_MAX            => 1000;
@@ -29,4 +29,15 @@ sub generate_ip{
   print "Isolated Images ", NUM_SAMPLES, "\n";
 }
 
-generate_ip();
+sub generate_center_multiple_seeds{
+  my $width = 200;
+  my $height = 200;
+  my $num_samples = 10;
+  foreach (1 .. $num_samples) {
+    my $seed = int(rand SEED_MAX);
+    system(TGSBT_EXE, $width, $height, 4000, $seed) == 0
+      or die "center seeds binary failed: $?";
+  }
+}
+
+1;

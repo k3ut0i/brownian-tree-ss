@@ -11,4 +11,6 @@ a single process tree.
   ./center_seeded.bin 200 200 4000 3  15.58s user 0.01s system 99% cpu 15.592 total
 #+END_EXAMPLE
 
-[[file:sample_200x200_4000_3.png]]
+       Seed 3                    Random seeds 
+[[file:sample_200x200_4000_3.png]] [[file:sample_200x200_n10.gif]]
+
