@@ -1,10 +1,14 @@
 * Notes on implementation details
-** TODO Multi-threaded Generator 
+** TODO Multi-threaded Generator [0/2]
 Using threads to speed up particle generation.
-1. I need to figure out a way to compose particles generated in parallel.
-2. Make sure helper functions are thread safe.
+*** TODO Compose particles generated in parallel.
+    I'll most likely need a thread manager for this part.
+*** TODO Verify helper functions are thread safe.
 ** TODO Sub graph recognition
 Large Brownian Trees produce fractal-ish images. What are the common reoccurring patterns ?
 I would like to analyze a series of generated images and find out how fractal a Brownian tree is?  
 ** TODO Scheme Bindings [0/1]
 - [ ] Complete /bt.scm/.
+** TODO Statistics
+Before completing the implementation of multi-threaded generator, write up a simple report on final attributes(avg. out-of-bounds, total-steps, successful-steps etc..) of simple trees.
+

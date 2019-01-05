@@ -50,8 +50,16 @@ struct brownian_tree * bt_init(const ul max_x, const ul max_y, unsigned int rsee
 void bt_destroy(struct brownian_tree * t);
 void bt_new_seed_at(struct brownian_tree * t, const ul x, const ul y);
 
-bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y);
-bool bt_new_random_particle(struct brownian_tree * t);
+/* Deprecated: Use from_to functions that do not change state. */
+bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y)
+  __attribute__ ((deprecated));
+bool bt_new_random_particle(struct brownian_tree * t)
+  __attribute__ ((deprecated));
+
+/* TODO: rewrite bt_new_particle_at as a stateless fn. */
+bool bt_new_particle_from_to(struct brownian_tree * t,
+			     const ul from_x, const ul from_y,
+			     const ul * to_x, const ul * to_y);
 
 /* TODO: Testing require for these functions. */
 ul bt_npart_from(struct brownian_tree* t, ul* xy, ul n);
@@ -70,5 +78,4 @@ void bt_dump_to_pbm_file(struct brownian_tree * t, const char * filename);
 void bt_dump_all_info(struct brownian_tree* t, FILE* fp);
 void bt_dump_all_info_to_file(struct brownian_tree* t, const char* filename);
 
-void bt_draw_sample(const char * filename);
 #endif

@@ -261,10 +261,26 @@ void bt_npart(struct brownian_tree* t, rp_gen f, ul n)
   }
 }
 
+struct point{
+  ul x, y;
+  struct point * next;
+};
+
+struct pqueue{
+  struct point * front;
+  struct point * last;
+};
+
 int bt_npart_threaded(struct brownian_tree* t, rp_gen f, ul n)
 {
   int ret_num = 0;
   /* TODO: Figure out a crystal clear way to compose parallel computed
      Particles. */
+  /* Thread manager should maintain a constant num of threads until the
+     end condition is met.*/
+  /* When each thread exits, if a new particle is generated queue it. */
+  /* Queue control should Have the highest priority. */
+  /* It should clear the queue and set the state as fastly as possible 
+     to  minimize useless particles due to congestion. */
   return ret_num;
 }

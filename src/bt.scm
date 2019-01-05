@@ -3,6 +3,7 @@
   #:use-module (system foreign-object)
   #:use-module (oop goops)
   #:use-module (srfi srfi-8)
+  #:use-module (ice-9 match)
   #:export (<brownian-tree>
 	    new-particle-from!
 	    new-brownian-tree))
@@ -25,6 +26,7 @@
 (define-method (initialize (tree <brownian-tree>) initargs)
   (next-method)
   (let ((parsed-fields (parse-c-struct (raw-pointer tree) bt-struct-type)))
+    ;; TODO: remove the convoluted values/receive and use ice-9 match fn
     (receive (x-size y-size buffer-ptr random-seed
 		     rng-state num-part out-of-bound-count
 		     total-steps successful-steps)

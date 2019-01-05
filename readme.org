@@ -1,5 +1,14 @@
 * Brownian Trees
 Various methods to generate Brownian trees.  
-- [ ] Threaded methods are non completed.
-- [ ] Non deterministic vs deterministic computations need profiling.
-[[file:docs/impl.org][implementation docs]] for more Todos.
+Threaded methods are not completed.
+Non deterministic vs deterministic computations need profiling.
+See [[file:docs/impl.org][implementation docs]] for more Todos.
+
+a single process tree.
+#+BEGIN_EXAMPLE
+  $ time ./center_seeded.bin 200 200 4000 3                             
+  Brownian Tree: w:200, h:200, Init:(100,100) to sample_200x200_4000_3.pbm
+  ./center_seeded.bin 200 200 4000 3  15.58s user 0.01s system 99% cpu 15.592 total
+#+END_EXAMPLE
+
+[[file:sample_200x200_4000_3.png]]
