@@ -6,7 +6,13 @@
   #:use-module (ice-9 match)
   #:export (<brownian-tree>
 	    new-particle-from!
-	    new-brownian-tree))
+	    new-brownian-tree
+	    new-seed-at
+	    dump-to-pbm-file
+	    npart
+	    npart-from
+	    touch-tree
+	    on-tree?))
 
 (define-class <brownian-tree> ()
   (raw-pointer #:init-keyword #:raw-pointer
@@ -58,23 +64,43 @@
 			    (car point) (cdr point))) (lp (try-traversal)))
        (else #f))))) ;; in last case, initial point is touching the tree.
 
-(define bt-lib (dynamic-link "./libbrownian_tree.so"))
+(define (new-random-particle! tree)
+  (let ((try-traversal (lambda ()
+			 (%new-random-particle (raw-pointer tree)))))
+    (let loop ((success (try-traversal)))
+      (if (= success 1)
+	  #t
+	  (loop (try-traversal))))))
+
+(eval-when (compile load)
+  (define bt-lib
+    (dynamic-link  (if (access? "./libbrownian_tree.so" X_OK)
+		       "./libbrownian_tree.so"
+		       (begin
+			 (display "Cannot find library file.\n")
+			 (display "Give Alternate path: ")
+			 (read))))))
 
 (define %bt-init
   (pointer->procedure '* 
 		      (dynamic-func "bt_init" bt-lib)
 		      (list uint64 uint64 uint32)))
+
 (define %bt-destroy
   (pointer->procedure void
 		      (dynamic-func "bt_destroy" bt-lib)
 		      '(*)))
+
 (define %new-seed-at
   (pointer->procedure void
 		      (dynamic-func "bt_new_seed_at" bt-lib)
 		      (list '* uint64 uint64)))
 
+(define (new-seed-at btree x-pos y-pos)
+  (%new-seed-at (raw-pointer btree) x-pos y-pos))
+
 (define %new-particle-at
-  (pointer->procedure int32 ; C Boolean, 1 true : 0 false
+  (pointer->procedure int32		        ; C Boolean, 1 true : 0 false
 		      (dynamic-func "bt_new_particle_at" bt-lib)
 		      (list '* uint64 uint64))) ; Co-ordinates from which to start
 
@@ -87,27 +113,53 @@
 		      (dynamic-func "bt_npart_from" bt-lib)
 		      (list '* '* uint64)))
 
-;; TODO: npart
+(define (npart-from btree point num-particles)
+  (%npart-from (raw-pointer btree)
+	       (make-c-struct (list uint64 uint64)
+			      (list (car point) (cdr point)))
+	       num-particles))
+(define %npart
+  (pointer->procedure void
+		      (dynamic-func "bt_npart" bt-lib)
+		      (list '* '* uint64)))
+
+(define (npart btree point-fn num-particles)
+  (%npart (raw-pointer btree)
+	  (procedure->pointer uint64 point-fn (list uint64 uint64))
+	  num-points))
 
 (define %on-tree?
   (pointer->procedure uint32
 		      (dynamic-func "on_tree_p" bt-lib)
 		      (list '* uint64 uint64)))
 
+(define (on-tree? btree x-pos y-pos)
+  (%on-tree? (raw-pointer btree) x-pos y-pos))
+
 (define %touch-tree
   (pointer->procedure uint64
 		      (dynamic-func "touch_tree" bt-lib)
 		      (list '* uint64 uint64)))
 
+(define (touch-tree btree x-pos y-pos)
+  (%touch-tree (raw-pointer btree) x-pos y-pos))
 
-(define bt-struct-type (list uint64 ; x, width
-			     uint64 ; y, height
-			     '* ; buffer, memory
-			     uint32 ; Random seed
-			     '* ; State of random number generator.
-			     uint64 ; Number of particles.
-			     uint64 ; out of bound steps
-			     uint64 ; Total number of steps
+(define %dump-to-pbm-file
+  (pointer->procedure void
+		      (dynamic-func "bt_dump_to_pbm_file" bt-lib)
+		      (list '* '*)))
+
+(define (dump-to-pbm-file btree file)
+  (%dump-to-pbm-file (raw-pointer btree) (string->pointer file)))
+
+(define bt-struct-type (list uint64	; x, width
+			     uint64	; y, height
+			     '*		; buffer, memory
+			     uint32	; Random seed
+			     '*	        ; State of random number generator.
+			     uint64	; Number of particles.
+			     uint64	; out of bound steps
+			     uint64	; Total number of steps
 			     uint64)) ; successful traversals
 
 (define node-struct-type (list int32 ; Type of node,
@@ -120,30 +172,3 @@
 			       '*)) ; Lowest depth connected node
 
 (define node-type #(#:empty #:seed #:particle))
-
-(define (bt-size b)
-  (let ((width (list-ref (parse-c-struct b bt-struct-type) 0))
-	(height (list-ref (parse-c-struct b bt-struct-type) 1)))
-    (cons width height)))
-
-(define (bt-seed b)
-  (list-ref (parse-c-struct b bt-struct-type) 3))
-
-(define (bt-particle-size b)
-  (list-ref (parse-c-struct b bt-struct-type) 5))
-
-(define (wrap-brownian-tree bt-pointer)
-  '())
-
-(define (unwrap-brownian-tree bt-pointer)
-  '())
-
-
-;; (define-wrapped-pointer-type <brownian-tree>
-;;   brownian-tree?
-;;   wrap-brownian-tree unwrap-brownian-tree
-;;   (lambda (b p)
-;;     (format p "#<brownian tree of size: ~a ~a ~a>"
-;; 	    (bt-size b)
-;; 	    (bt-seed b)
-;; 	    (bt-particle-size b))))

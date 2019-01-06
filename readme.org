@@ -12,5 +12,6 @@ a single process tree.
 #+END_EXAMPLE
 
        Seed 3                    Random seeds 
+
 [[file:sample_200x200_4000_3.png]] [[file:sample_200x200_n10.gif]]
 

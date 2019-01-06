@@ -84,6 +84,7 @@ void bt_destroy(struct brownian_tree * t){
   free(t);
 }
 
+/* FIXME: Num of steps and out-of-bounds has some bug */
 bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y)
 {
   if(on_tree_p(t, x, y)) return false;
@@ -126,7 +127,7 @@ bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y)
       break;
     }
     new_depth = touch_tree(t, new_x, new_y);
-    if(new_depth){
+    if(new_depth){      
       struct node* new_node = t->buffer + new_x * t->y + new_y;
       new_node->type = PARTICLE;
       new_node->depth = new_depth;
@@ -134,13 +135,18 @@ bool bt_new_particle_at(struct brownian_tree * t, ul x, ul y)
       new_node->steps = nsteps;
       new_node->from_x = x;
       new_node->from_y = y;
+
       t->num_particles++;
+      t->successful_steps += nsteps;
       DBG("New node[%ld] at %ld, %ld from %ld, %ld\n",
 	  t->num_particles, new_x, new_y, x, y);
       /* Returning both connected node, depth is cumbersome.
 Including touch functionality here breaks abstraction. Do i need connection link?*/
       return true;
+    }else{
+      t->out_of_bounds++;
     }
+    t->total_steps++;
     nsteps++;
   }
   return false;
