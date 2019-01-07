@@ -1,0 +1,37 @@
+* Point seeded images
+Without any attractor the center seeded images take a very long time.
+
+** Single center seed
+#+BEGIN_EXAMPLE
+  time perl -I./t/ -mgenerate_images -e "generate_center_multiple_seeds(200,400,10)"
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_694.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_335.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_440.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_845.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_185.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_48.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_880.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_22.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_101.pbm
+  Brownian Tree: w:200, h:400, Init:(100,200) to sample_400x200_4000_632.pbm
+  perl -I./t/ -mgenerate_images -e "generate_center_multiple_seeds(200,400,10)"  813.93s user 0.06s system 99% cpu 13:34.02 total
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+  convert -delay 100 -loop 0 sample_400x200_4000_*.pbm sample_400x200_4000_collection.gif
+#+END_EXAMPLE
+
+[[file:sample_400x200_4000_collection.gif][Center seeded 4000 particles collection]]
+
+** Four Random seed collection
+Generation
+#+BEGIN_EXAMPLE
+  perl -I./t/ -mgenerate_images -e "generate_ip()"
+  convert -delay 100 -loop 0 isolated_*.pbm random_isolated_4.gif
+#+END_EXAMPLE
+[[file:random_isolated_4.gif][Four random seeds]]
+
+** Scripted seeding
+Describing the initial seeds with a function, look at [[file:examples/generators.scm]] for the corresponding functions. 
+
+[[file:sample_scripted_circle.png]] [[file:sample_scripted_square.png]]

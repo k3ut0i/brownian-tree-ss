@@ -33,9 +33,11 @@ sub generate_center_multiple_seeds{
   my $width = 200;
   my $height = 200;
   my $num_samples = 10;
+  my $num_particles = 4000;
+  ($width, $height, $num_samples, $num_particles) = @_;
   foreach (1 .. $num_samples) {
     my $seed = int(rand SEED_MAX);
-    system(TGSBT_EXE, $width, $height, 4000, $seed) == 0
+    system(TGSBT_EXE, $height, $width, $num_particles, $seed) == 0
       or die "center seeds binary failed: $?";
   }
 }

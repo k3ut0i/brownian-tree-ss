@@ -14,6 +14,16 @@
 	    touch-tree
 	    on-tree?))
 
+;; FIXME: Stuck when loading into geiser interactively. Solution?
+(eval-when (load)
+  (define bt-lib
+    (dynamic-link  (if (access? "./libbrownian_tree.so" X_OK)
+		       "./libbrownian_tree.so"
+		       (begin
+			 (display "Cannot find library file.\n")
+			 (display "Give Alternate path: ")
+			 (read))))))
+
 (define-class <brownian-tree> ()
   (raw-pointer #:init-keyword #:raw-pointer
 	       #:getter raw-pointer)
@@ -31,15 +41,13 @@
 
 (define-method (initialize (tree <brownian-tree>) initargs)
   (next-method)
-  (let ((parsed-fields (parse-c-struct (raw-pointer tree) bt-struct-type)))
-    ;; TODO: remove the convoluted values/receive and use ice-9 match fn
-    (receive (x-size y-size buffer-ptr random-seed
-		     rng-state num-part out-of-bound-count
-		     total-steps successful-steps)
-	(apply values parsed-fields)
-      (set! (size tree) (cons x-size y-size))
-      (set! (rseed tree) random-seed)
-      (set! (buffer tree) buffer-ptr))))
+  (match (parse-c-struct (raw-pointer tree) bt-struct-type)
+    ((x-size y-size buffer-ptr random-seed
+	     rng-state num-part out-of-bound-count
+	     total-steps successful-steps)
+     (set! (size tree) (cons x-size y-size))
+     (set! (rseed tree) random-seed)
+     (set! (buffer tree) buffer-ptr))))
 
 (define-method (write (tree <brownian-tree>) port)
   (format port "#<BROWNIAN-TREE: ~A ~A ~A>"
@@ -71,15 +79,6 @@
       (if (= success 1)
 	  #t
 	  (loop (try-traversal))))))
-
-(eval-when (compile load)
-  (define bt-lib
-    (dynamic-link  (if (access? "./libbrownian_tree.so" X_OK)
-		       "./libbrownian_tree.so"
-		       (begin
-			 (display "Cannot find library file.\n")
-			 (display "Give Alternate path: ")
-			 (read))))))
 
 (define %bt-init
   (pointer->procedure '* 
@@ -126,7 +125,7 @@
 (define (npart btree point-fn num-particles)
   (%npart (raw-pointer btree)
 	  (procedure->pointer uint64 point-fn (list uint64 uint64))
-	  num-points))
+	  num-particles))
 
 (define %on-tree?
   (pointer->procedure uint32

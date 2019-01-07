@@ -2,16 +2,23 @@
 Various methods to generate Brownian trees.  
 Threaded methods are not completed.
 Non deterministic vs deterministic computations need profiling.
-See [[file:docs/impl.org][implementation docs]] for more Todos.
+See [[file:docs/impl.org][implementation docs]] for more info and [[file:docs/examples.org][examples]] for more sample images.
 
-a single process tree.
-#+BEGIN_EXAMPLE
-  $ time ./center_seeded.bin 200 200 4000 3                             
-  Brownian Tree: w:200, h:200, Init:(100,100) to sample_200x200_4000_3.pbm
-  ./center_seeded.bin 200 200 4000 3  15.58s user 0.01s system 99% cpu 15.592 total
-#+END_EXAMPLE
+** Simple examples
+ #+BEGIN_EXAMPLE
+   $ time ./center_seeded.bin 200 200 4000 3                             
+   Brownian Tree: w:200, h:200, Init:(100,100) to sample_200x200_4000_3.pbm
+   ./center_seeded.bin 200 200 4000 3  15.58s user 0.01s system 99% cpu 15.592 total
+ #+END_EXAMPLE
 
-       Seed 3                    Random seeds 
 
-[[file:sample_200x200_4000_3.png]] [[file:sample_200x200_n10.gif]]
+ Center seed with random seed 3.                   [[file:sample_200x200_4000_3.png]]
 
+
+
+ A collection of images with seed at the center.   [[file:sample_200x200_n10.gif]]
+
+
+** Scripted examples
+
+[[file:docs/sample_scripted_circle.png]] [[file:docs/sample_scripted_square.png]]

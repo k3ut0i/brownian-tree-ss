@@ -7,8 +7,9 @@ Using threads to speed up particle generation.
 ** TODO Sub graph recognition
 Large Brownian Trees produce fractal-ish images. What are the common reoccurring patterns ?
 I would like to analyze a series of generated images and find out how fractal a Brownian tree is?  
-** TODO Scheme Bindings [0/1]
-- [ ] Complete /bt.scm/.
+** DONE Scheme Bindings [1/1]
+   CLOSED: [2019-01-07 Mon 15:54]
+- [X] Complete /bt.scm/.
 ** TODO Statistics
 Before completing the implementation of multi-threaded generator, write up a simple report on final attributes(avg. out-of-bounds, total-steps, successful-steps etc..) of simple trees.
 

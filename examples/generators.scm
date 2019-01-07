@@ -22,14 +22,14 @@
 
 (define (circle-generator size)
   "Return points of a concentric circle half the SIZE."
-  (let* ((r (quotient (- size 1) 2))
+  (let* ((r (quotient (- size 1) 4))
 	 (n (ceiling (* 2 (* pi r))))
 	 (theta (/ 1 r)))
     (lambda ()
       (let ((ans (if (< n 0)
 		     #f
-		     (let* ((xa (* r (cos (* n theta))))
-			    (ya (* r (sin (* n theta))))
+		     (let* ((xa (+ (* r (cos (* n theta))) r))
+			    (ya (+ (* r (sin (* n theta))) r))
 			    (x (round (inexact->exact (+ r xa))))
 			    (y (round (inexact->exact (+ r ya)))))
 		       (cons x y)))))
